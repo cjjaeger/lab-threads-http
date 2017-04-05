@@ -13,7 +13,7 @@ import java.util.Scanner;
  * Code adapted from Google.
  *
  * YOUR TASK: Add comments explaining how this code works!
- * 
+ *
  * @author Joel Ross & Kyungmin Lee
  */
 public class MovieDownloader {
@@ -22,60 +22,67 @@ public class MovieDownloader {
 
 		//construct the url for the omdbapi API
 		String urlString = "";
+
+
 		try {
 			urlString = "http://www.omdbapi.com/?s=" + URLEncoder.encode(movie, "UTF-8") + "&type=movie";
-		}catch(UnsupportedEncodingException uee){
+		}catch(UnsupportedEncodingException uee){//if unable to encode character return null
 			return null;
 		}
 
-		HttpURLConnection urlConnection = null;
-		BufferedReader reader = null;
+		//initializing variables
+		HttpURLConnection urlConnection = null;//for request to server
+		BufferedReader reader = null;//to read in the data
 
-		String[] movies = null;
+		String[] movies = null;//save the movies in here
+
 
 		try {
-
+			//creating url from string
 			URL url = new URL(urlString);
-
+			//trying to open connection with url
 			urlConnection = (HttpURLConnection) url.openConnection();
-			urlConnection.setRequestMethod("GET");
-			urlConnection.connect();
+			urlConnection.setRequestMethod("GET");//the request method we only want to get data
+			urlConnection.connect();//connecting
 
-			InputStream inputStream = urlConnection.getInputStream();
-			StringBuffer buffer = new StringBuffer();
+			InputStream inputStream = urlConnection.getInputStream();//getting the stream of data
+			StringBuffer buffer = new StringBuffer();// for saving the resuts of request
 			if (inputStream == null) {
 				return null;
 			}
-			reader = new BufferedReader(new InputStreamReader(inputStream));
+			reader = new BufferedReader(new InputStreamReader(inputStream));//creatingobject to read in all the data from
 
-			String line = reader.readLine();
-			while (line != null) {
-				buffer.append(line + "\n");
-				line = reader.readLine();
+			String line = reader.readLine();//reading individual line on the BufferedReader
+			while (line != null) {//as long as there is a line to read
+				buffer.append(line + "\n");//adding the line to the StringBuffer
+				line = reader.readLine();//going to the next line
 			}
-
+			//if you got no data from the request return null
 			if (buffer.length() == 0) {
 				return null;
 			}
+
+
 			String results = buffer.toString();
+			//modifying the string output of the results
 			results = results.replace("{\"Search\":[","");
 			results = results.replace("]}","");
 			results = results.replace("},", "},\n");
-
+			//separating the string into separate elements for the movie array
 			movies = results.split("\n");
-		} 
-		catch (IOException e) {
+		}
+		catch (IOException e) {//catching the exception and returning null if there are any thrown
 			return null;
-		} 
-		finally {
+		}
+		finally {//after try block finishes executing
 			if (urlConnection != null) {
-				urlConnection.disconnect();
+				urlConnection.disconnect();//if there is still a connection disconnect
 			}
 			if (reader != null) {
 				try {
-					reader.close();
-				} 
-				catch (IOException e) {
+					reader.close();//closing the BufferedReader if it's not null
+				}
+				catch (IOException e) {//catching anyexceptions being thrown
 				}
 			}
 		}
@@ -84,13 +91,13 @@ public class MovieDownloader {
 	}
 
 
-	public static void main(String[] args) 
+	public static void main(String[] args)
 	{
 		Scanner sc = new Scanner(System.in);
 
 		boolean searching = true;
 
-		while(searching) {					
+		while(searching) {
 			System.out.print("Enter a movie name to search for or type 'q' to quit: ");
 			String searchTerm = sc.nextLine().trim();
 			if(searchTerm.toLowerCase().equals("q")){
